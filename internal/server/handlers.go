@@ -1,4 +1,4 @@
-// internal/server/handlers.go
+
 package server
 
 import (

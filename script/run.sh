@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Download the project dependencies
 go mod download
 
