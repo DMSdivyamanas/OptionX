@@ -78,7 +78,17 @@ func (s *Server) handlePingPong(client *Client) {
 	for range ticker.C {
 		if err := client.Conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 			log.Printf("Ping error: %v", err)
-			s.unregister <- client
+			s.mu.Lock()
+			// Broadcast disconnection message
+			disconnectionMessage := fmt.Sprintf("%s is disconnected from us", client.Username)
+			for _, c := range s.clients {
+				if c.ID != client.ID {
+					c.Conn.WriteMessage(websocket.TextMessage, []byte(disconnectionMessage))
+				}
+			}
+			// Unregister and delete the client
+			delete(s.clients, client.ID)
+			s.mu.Unlock()
 			return
 		}
 	}
