@@ -19,7 +19,7 @@ The server is structured to handle graceful shutdowns, ensuring all resources ar
 3. Navigate to the project root directory.
 4. Run the server using the following command:
    ```bash
-   ./scripts/run.sh
+   bash ./script/run.sh
    ```
 
 ## Dependencies
