@@ -66,3 +66,8 @@ The server is structured to handle graceful shutdowns, ensuring all resources ar
 - The server's handling of ping/pong messages and disconnections should be observed.
 
 By following these steps, you can use Postman to test the functionality of the WebSocket server and verify its behavior in different scenarios.
+
+## Video Tutorial
+https://github.com/user-attachments/assets/8d21829f-628f-4d03-8c72-ce92288be772
+
+
