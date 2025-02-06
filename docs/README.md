@@ -36,3 +36,33 @@ The server is structured to handle graceful shutdowns, ensuring all resources ar
 - Routes messages to specific clients based on ID.
 - Broadcasts new client connections to all clients.
 - Assigns random usernames to clients for display.
+
+## Testing with Postman
+
+### Prerequisites
+
+- [Postman](https://www.postman.com/downloads/) installed on your machine.
+
+### Steps
+
+1. Start the WebSocket server by running the provided script or command.
+2. Open Postman and create a new WebSocket request.
+3. Enter the WebSocket server URL in the request URL field (e.g., `ws://localhost:8081/ws`).
+4. Send a WebSocket message to the server and observe the response.
+5. Test broadcasting messages to all clients and sending direct messages to specific clients.
+6. Verify the server's handling of ping/pong messages and disconnections.
+
+### Example Request
+
+- **URL**: `ws://localhost:8081/ws`
+- **Request Body**: `{ "id": "broadcast", "message": "Hello, everyone!" }`
+- **Request Body for direct message**: `{ "id": "client123", "message": "Hello, client123! This is a direct message for you." }`
+
+### Expected Responses
+
+- Upon connecting to the server, you should receive a welcome message.
+- Broadcasting a message should result in all connected clients receiving the message.
+- Sending a direct message to a specific client should only be received by that client.
+- The server's handling of ping/pong messages and disconnections should be observed.
+
+By following these steps, you can use Postman to test the functionality of the WebSocket server and verify its behavior in different scenarios.
