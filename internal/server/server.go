@@ -8,14 +8,16 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+// Server struct holds information about connected clients and channels for communication.
 type Server struct {
-	clients    map[string]*Client
-	register   chan *Client
-	unregister chan *Client
-	broadcast  chan []byte
-	mu         sync.Mutex
+	clients    map[string]*Client // Map of client IDs to Client objects
+	register   chan *Client       // Channel for registering new clients
+	unregister chan *Client       // Channel for unregistering clients
+	broadcast  chan []byte        // Channel for broadcasting messages to all clients
+	mu         sync.Mutex         // Mutex to protect access to the clients map
 }
 
+// NewServer initializes a new Server instance.
 func NewServer() *Server {
 	return &Server{
 		clients:    make(map[string]*Client),
@@ -25,15 +27,17 @@ func NewServer() *Server {
 	}
 }
 
+// Run starts the server's main loop to handle client registration, unregistration, and broadcasting.
 func (s *Server) Run() {
 	for {
 		select {
 		case client := <-s.register:
+			// Register a new client
 			s.mu.Lock()
 			s.clients[client.ID] = client
 			s.mu.Unlock()
 
-			// Send welcome message to the new client
+			// Send a welcome message to the new client
 			welcomeMessage := "Welcome! Current clients: " + s.getClientUsernames()
 			client.Conn.WriteMessage(websocket.TextMessage, []byte(welcomeMessage))
 
@@ -42,6 +46,7 @@ func (s *Server) Run() {
 			s.broadcastMessageToAll([]byte(newClientMessage), client.ID)
 
 		case client := <-s.unregister:
+			// Unregister a client
 			s.mu.Lock()
 			if _, ok := s.clients[client.ID]; ok {
 				delete(s.clients, client.ID)
@@ -50,6 +55,7 @@ func (s *Server) Run() {
 			s.mu.Unlock()
 
 		case message := <-s.broadcast:
+			// Broadcast a message to all clients
 			s.mu.Lock()
 			for _, client := range s.clients {
 				client.Conn.WriteMessage(websocket.TextMessage, message)
@@ -59,6 +65,7 @@ func (s *Server) Run() {
 	}
 }
 
+// broadcastMessageToAll sends a message to all clients except the one specified by excludeID.
 func (s *Server) broadcastMessageToAll(message []byte, excludeID string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -72,6 +79,7 @@ func (s *Server) broadcastMessageToAll(message []byte, excludeID string) {
 	}
 }
 
+// getClientUsernames returns a string of all connected client usernames.
 func (s *Server) getClientUsernames() string {
 	usernames := ""
 	for _, client := range s.clients {
@@ -80,6 +88,7 @@ func (s *Server) getClientUsernames() string {
 	return usernames
 }
 
+// Shutdown gracefully shuts down the server by closing all client connections.
 func (s *Server) Shutdown() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -88,6 +97,7 @@ func (s *Server) Shutdown() {
 	}
 }
 
+// closeConnection closes a WebSocket connection.
 func closeConnection(conn *websocket.Conn) {
 	conn.Close()
 }

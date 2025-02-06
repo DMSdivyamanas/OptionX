@@ -1,11 +1,10 @@
+#!/bin/bash
 
-## Dependencies
+# Download the project dependencies
+go mod download
 
-- [Gorilla WebSocket](https://github.com/gorilla/websocket)
+# Build the project
+go build -o server ./cmd/server/main.go
 
-## Features
-
-- Accepts and maintains multiple connections.
-- Sends ping messages and handles pong responses.
-- Disconnects inactive clients.
-- Routes messages to specific clients based on ID.
+# Run the server
+./server
