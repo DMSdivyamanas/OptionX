@@ -3,6 +3,7 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -46,14 +47,16 @@ func (s *Server) HandleConnections(w http.ResponseWriter, r *http.Request) {
 		if targetID, ok := msg["id"].(string); ok {
 			s.mu.Lock()
 			if targetID == "broadcast" {
+				broadcastMessage := fmt.Sprintf("%s: %s", client.Username, msg["message"])
 				for _, client := range s.clients {
-					err := client.Conn.WriteMessage(websocket.TextMessage, message)
+					err := client.Conn.WriteMessage(websocket.TextMessage, []byte(broadcastMessage))
 					if err != nil {
 						log.Printf("Error broadcasting to client %s: %v", client.ID, err)
 					}
 				}
 			} else if targetClient, exists := s.clients[targetID]; exists {
-				err := targetClient.Conn.WriteMessage(websocket.TextMessage, message)
+				directMessage := fmt.Sprintf("Direct message from %s: %s", client.Username, msg["message"])
+				err := targetClient.Conn.WriteMessage(websocket.TextMessage, []byte(directMessage))
 				if err != nil {
 					log.Printf("Error sending to client %s: %v", targetClient.ID, err)
 				}

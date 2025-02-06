@@ -32,11 +32,15 @@ func (s *Server) Run() {
 			s.mu.Lock()
 			s.clients[client.ID] = client
 			s.mu.Unlock()
-			welcomeMessage := "Welcome! Current clients: " + s.getClientIDs()
+
+			// Send welcome message to the new client
+			welcomeMessage := "Welcome! Current clients: " + s.getClientUsernames()
 			client.Conn.WriteMessage(websocket.TextMessage, []byte(welcomeMessage))
 
-			newClientMessage := fmt.Sprintf("New client connected: %s", client.ID)
+			// Broadcast the new client's username to all other clients
+			newClientMessage := fmt.Sprintf("New client connected: %s", client.Username)
 			s.broadcastMessageToAll([]byte(newClientMessage), client.ID)
+
 		case client := <-s.unregister:
 			s.mu.Lock()
 			if _, ok := s.clients[client.ID]; ok {
@@ -44,6 +48,7 @@ func (s *Server) Run() {
 				closeConnection(client.Conn)
 			}
 			s.mu.Unlock()
+
 		case message := <-s.broadcast:
 			s.mu.Lock()
 			for _, client := range s.clients {
@@ -67,12 +72,12 @@ func (s *Server) broadcastMessageToAll(message []byte, excludeID string) {
 	}
 }
 
-func (s *Server) getClientIDs() string {
-	ids := ""
-	for id := range s.clients {
-		ids += id + " "
+func (s *Server) getClientUsernames() string {
+	usernames := ""
+	for _, client := range s.clients {
+		usernames += client.Username + " "
 	}
-	return ids
+	return usernames
 }
 
 func (s *Server) Shutdown() {
